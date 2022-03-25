@@ -23,7 +23,8 @@
     in rec
       { devShell = pkgs.mkShell
         { buildInputs =
-          [ rust
+          [ pkgs.llvmPackages_14.bintools
+            rust
           ]
         ; shellHook =
           ''
