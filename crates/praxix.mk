@@ -1,5 +1,6 @@
 CRATES = \
-    bootloader
+    bootloader \
+    kernel
 
 CRATES_MK_FILES = $(patsubst %,$(ROOT)/crates/%/praxix.mk, $(CRATES))
 

@@ -1,9 +1,9 @@
 ROOT = $(realpath .)
 VPATH = $(ROOT)/src
 RUST_EDITION = 2021
-TARGET_DIR = target
+TARGETS_DIR = targets
 TARGET = riscv64imac-unknown-none-elf
-TARGET_FILE = $(TARGET_DIR)/$(TARGET).json
+TARGET_FILE = $(TARGETS_DIR)/$(TARGET).json
 
 RUST_LLD = $(RUST_ROOT)/lib/rustlib/x86_64-unknown-linux-gnu/bin/rust-lld
 RUST_CORE_DIR = $(RUST_ROOT)/lib/rustlib/src/rust/library/core
@@ -19,10 +19,6 @@ RUST_COMPILER_BUILTINS_SRCS = $(patsubst \
 OUT_DIR = $(ROOT)/build
 OUT_TARGETS_DIR = $(OUT_DIR)/target
 OUT_TARGET_DIR = $(OUT_TARGETS_DIR)/$(TARGET)
-
-# Kernel out
-OUT_KERNEL = $(OUT_TARGET_DIR)/kernel
-OUT_KERNEL_STRIPPED = $(OUT_TARGET_DIR)/kernel-stripped
 
 # Boot image out
 OUT_BOOT_IMAGE = $(OUT_TARGET_DIR)/bootimage
@@ -49,10 +45,7 @@ RUSTC_FLAGS += \
 bootimage: $(OUT_BOOT_IMAGE)
 
 .PHONY: kernel
-kernel: $(OUT_KERNEL)
-
-.PHONY: kernel-stripped
-kernel-stripped: $(OUT_KERNEL_STRIPPED)
+kernel: crate-kernel
 
 include crates/praxix.mk
 
@@ -64,22 +57,6 @@ $(OUT_TARGETS_DIR): | $(OUT_DIR)
 
 $(OUT_TARGET_DIR): | $(OUT_TARGETS_DIR)
 	mkdir $@
-
-$(OUT_BOOT_IMAGE): $(OUT_KERNEL_STRIPPED) $(OUT_CRATES_BOOTLOADER_BINARY)
-	echo $(OUT_BOOT_IMAGE)
-
-$(OUT_KERNEL): \
-    main.rs \
-    $(OUT_RUST_CORE_LIB) \
-    $(OUT_RUST_COMPILER_BUILTINS_LIB) \
-    | $(OUT_TARGET_DIR)
-	rustc $(RUSTC_FLAGS) -o $@ $<
-
-$(OUT_KERNEL_STRIPPED): $(OUT_KERNEL) | $(OUT_TARGET_DIR)
-	llvm-objcopy \
-		--strip-debug \
-		$(OUT_KERNEL) \
-		$(OUT_KERNEL_STRIPPED)
 
 # Rust
 $(OUT_RUST_DIR): | $(OUT_TARGET_DIR)
