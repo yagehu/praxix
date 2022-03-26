@@ -1,7 +1,8 @@
 IN_CRATES_BOOTLOADER_DIR     = $(IN_CRATES_DIR)/bootloader
 IN_CRATES_BOOTLOADER_SRC_DIR = $(IN_CRATES_BOOTLOADER_DIR)/src
 IN_CRATES_BOOTLOADER_SRCS    = $(shell \
-  find $(IN_CRATES_BOOTLOADER_SRC_DIR) -type f -name '*.rs' \
+  find $(IN_CRATES_BOOTLOADER_SRC_DIR) -type f \
+    \( -name '*.rs' -o -name '*.S' \) \
 )
 
 OUT_CRATES_BOOTLOADER_DIR             = $(OUT_CRATES_DIR)/bootloader
@@ -16,7 +17,7 @@ $(OUT_CRATES_BOOTLOADER_DIR): | $(OUT_CRATES_DIR)
 	mkdir $(OUT_CRATES_BOOTLOADER_DIR)
 
 $(OUT_CRATES_BOOTLOADER_ELF): \
-    crate-kernel \
+    $(OUT_CRATES_KERNEL_ARCHIVE) \
     $(IN_CRATES_BOOTLOADER_SRCS) \
     $(OUT_RUST_CORE_LIB) \
     $(OUT_RUST_COMPILER_BUILTINS_LIB) \

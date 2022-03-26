@@ -41,8 +41,8 @@ RUSTC_FLAGS += \
     --sysroot $(OUT_RUST_SYSROOT_DIR) \
     --codegen linker=$(RUST_LLD)
 
-.PHONY: bootimage
-bootimage: $(OUT_BOOT_IMAGE)
+.PHONY: boot-image
+boot-image: crate-bootloader
 
 .PHONY: kernel
 kernel: crate-kernel
