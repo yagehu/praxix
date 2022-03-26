@@ -37,10 +37,10 @@ OUT_RUST_COMPILER_BUILTINS_LIB = $(OUT_RUST_LIBS_DIR)/libcompiler_builtins.rlib
 
 RUSTC_FLAGS =
 RUSTC_FLAGS += \
-    --edition $(RUST_EDITION) \
-    --target $(TARGET_FILE) \
-    --sysroot $(OUT_RUST_SYSROOT_DIR) \
-    --codegen linker=$(RUST_LLD)
+  --edition $(RUST_EDITION) \
+  --target $(TARGET_FILE) \
+  --sysroot $(OUT_RUST_SYSROOT_DIR) \
+  --codegen linker=$(RUST_LLD)
 
 .PHONY: boot-image
 boot-image: crate-bootloader
@@ -99,7 +99,7 @@ $(OUT_RUST_CORE_LIB): | $(OUT_RUST_LIBS_DIR)
 
 $(OUT_RUST_COMPILER_BUILTINS_LIB): \
     $(RUST_COMPILER_BUILTINS_SRCS) $(OUT_RUST_CORE_LIB) \
-    | $(OUT_RUST_LIBS_DIR)
+  | $(OUT_RUST_LIBS_DIR)
 	rustc $(RUSTC_FLAGS) \
 		--crate-name compiler_builtins \
 		--crate-type rlib \
