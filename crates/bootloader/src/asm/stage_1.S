@@ -13,14 +13,14 @@ _start:
     # register (CSR)** into `t0`, or `x5`, a general-purpose temporary register.
     csrr t0, mhartid
 
-    # If the hart ID is not zero, we branch to label `3` to loop. We only use
+    # If the hart ID is not zero, we branch to label `2` to loop. We only use
     # one hart for now.
     #
     # Numeric labels are used for local references. References to local labels
     # are suffixed with `f` for a forward reference or `b` for a backward
-    # reference. For example, `3f` here refers the the nearest label `3` defined
+    # reference. For example, `2f` here refers the the nearest label `2` defined
     # after the reference.
-    bnez t0, 3f
+    bnez t0, 2f
 
     # **Supervisor Address Translation and Protection (`satp`)** register is for
     # supervisor virtual memory configuration. Writing zero into the register
@@ -36,6 +36,8 @@ _start:
     # Disable opportunistic code sequence relaxation while setting `gp` because
     # otherwise the linker would relax this two-instruction sequence to
     # `mv gp, gp`.
+    #
+    # `push` and `pop` options are used to change an option in-line.
     .option push
     .option norelax
         # The load address pseudo-instruction `la` loads the `__global_pointer$`
@@ -47,6 +49,12 @@ _start:
         la gp, __global_pointer$
     .option pop
 
-3:
+    la a0, _bss_start
+    la a1, _bss_end
+
+2:
+    # The **Wait for Interrupt instruction (`wfi`)** provides a hint to the
+    # implementation that the current hart can be stalled until an interrupt
+    # might need servicing.
     wfi
-    j 3b
+    j 2b

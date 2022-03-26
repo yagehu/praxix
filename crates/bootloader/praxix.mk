@@ -24,6 +24,7 @@ $(OUT_CRATES_BOOTLOADER_ELF): \
   | $(OUT_CRATES_BOOTLOADER_DIR) \
     $(OUT_CRATES_KERNEL_DIR)
 	rustc $(RUSTC_FLAGS) \
+		--codegen link-arg=-T$(BOOT_IMAGE_LINKER_SCRIPT) \
 		--crate-type bin \
 		--crate-name bootloader \
 		-L native=$(OUT_CRATES_KERNEL_DIR) \

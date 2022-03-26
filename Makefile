@@ -4,6 +4,7 @@ RUST_EDITION = 2021
 TARGETS_DIR = targets
 TARGET = riscv64imac-unknown-none-elf
 TARGET_FILE = $(TARGETS_DIR)/$(TARGET).json
+BOOT_IMAGE_LINKER_SCRIPT = $(TARGETS_DIR)/$(TARGET).virt.ld
 
 RUST_LLD = $(RUST_ROOT)/lib/rustlib/x86_64-unknown-linux-gnu/bin/rust-lld
 RUST_CORE_DIR = $(RUST_ROOT)/lib/rustlib/src/rust/library/core
@@ -43,6 +44,18 @@ RUSTC_FLAGS += \
 
 .PHONY: boot-image
 boot-image: crate-bootloader
+
+.PHONY: qemu
+qemu: crate-bootloader
+	qemu-system-riscv64 \
+		-machine virt \
+		-cpu rv64 \
+		-d guest_errors,unimp \
+		-smp 4 \
+		-m 128M \
+		-drive if=none,format=raw,file=$(OUT_CRATES_BOOTLOADER_IMAGE),id=foo \
+		-device virtio-blk-device,scsi=off,drive=foo \
+		-serial mon:stdio
 
 .PHONY: kernel
 kernel: crate-kernel
