@@ -8,19 +8,25 @@
 .section .text.init
 .global _start
 
+
 _start:
     # Read the hart (hardware thread) ID from the `mhartid` **control and status
     # register (CSR)** into `t0`, or `x5`, a general-purpose temporary register.
     csrr t0, mhartid
 
-    # If the hart ID is not zero, we branch to label `2` to loop. We only use
-    # one hart for now.
+    # If the hart ID is not zero, we branch to label `3`. We only use one hart
+    # with ID 0 for now.
     #
     # Numeric labels are used for local references. References to local labels
     # are suffixed with `f` for a forward reference or `b` for a backward
-    # reference. For example, `2f` here refers the the nearest label `2` defined
+    # reference. For example, `3f` here refers the the nearest label `3` defined
     # after the reference.
-    bnez t0, 2f
+    bnez t0, 3f
+        
+    li   a0, 65      # write 'A'
+    call uart_write
+    li   a0, 10      # write 'A'
+    call uart_write
 
     # **Supervisor Address Translation and Protection (`satp`)** register is for
     # supervisor virtual memory configuration. Writing zero into the register
@@ -49,12 +55,45 @@ _start:
         la gp, __global_pointer$
     .option pop
 
+    /**
+     * Set all bytes in the BSS section to zero.
+     */
     la a0, _bss_start
     la a1, _bss_end
+    /** Size of BSS section is zero. No need to clear. */
+    bgeu a0, a1, 2f
+
+1:
+    /** Set a doubleword at memory location pointed to by =a0= to zero. */
+    sd   zero, (a0)
+    /** Move to next doubleword. */
+    addi a0, a0, 8
+    /** If there are more memory to clear, loop back to 1. */
+    bltu a0, a1, 1b
 
 2:
+    la sp, _stack_end
+
+3:
+
+4:
     # The **Wait for Interrupt instruction (`wfi`)** provides a hint to the
     # implementation that the current hart can be stalled until an interrupt
     # might need servicing.
     wfi
-    j 2b
+    j 3b
+
+.equ UART0,        0x10000000
+.equ UART_THR,     0x00000000
+.equ UART_TX_FULL, 0x80000000
+.equ UART_TX_DATA, 0x000000FF
+
+uart_write:
+    li   t0, UART0
+    li   t1, UART_TX_FULL
+1:  lw   t2, UART_THR(t0)
+    and  t3, t2, t1
+    bnez t3, 1b
+    andi a0, a0, UART_TX_DATA
+    sw   a0, UART_THR(t0)
+    ret

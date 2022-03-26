@@ -51,11 +51,11 @@ qemu: crate-bootloader
 		-machine virt \
 		-cpu rv64 \
 		-d guest_errors,unimp \
+		-bios none \
 		-smp 4 \
 		-m 128M \
-		-drive if=none,format=raw,file=$(OUT_CRATES_BOOTLOADER_IMAGE),id=foo \
-		-device virtio-blk-device,scsi=off,drive=foo \
-		-serial mon:stdio
+		-serial mon:stdio \
+		-kernel $(OUT_CRATES_BOOTLOADER_IMAGE)
 
 .PHONY: kernel
 kernel: crate-kernel
